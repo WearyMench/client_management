@@ -2,10 +2,6 @@
 
 **Client Management** is a customer management application that allows you to store and manage customer information, such as their names, surnames, phone numbers, and credit card details. It is built using C# and MySQL for the database.
 
-## Description
-
-This project aims to provide a simple and efficient solution for managing customer data. Users can add, modify, and query customer information easily and quickly.
-
 ## Features
 
 - MySQL database connection.
