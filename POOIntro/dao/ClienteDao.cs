@@ -1,29 +1,33 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Microsoft.Extensions.Configuration;
+using MySql.Data.MySqlClient;
 using POOIntro.entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace POOIntro.dao
 {
     internal class ClienteDao
     {
+        private readonly string _connectionString;
+
+        public ClienteDao()
+        {
+            // Construir la configuración a partir del archivo appsettings.json
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
+
+            // Obtener la cadena de conexión
+            _connectionString = configuration.GetConnectionString("DefaultConnection");
+        }
+
         public MySqlConnection Conectar()
         {
-            string servidor = "localhost";
-            string usuario = "root";
-            string password = "";
-            string baseDeDatos = "clientes";
-            string cadenaConexion = "Database=" + baseDeDatos + "; Data Source=" + servidor + "; User Id=" + usuario + "; Password=" + password + "";
-            MySqlConnection conexionDb = new MySqlConnection(cadenaConexion);
+            MySqlConnection conexionDb = new MySqlConnection(_connectionString);
             conexionDb.Open();
-            //conexionDb.Close();
             return conexionDb;
         }
 
-        public List<Cliente> obtenerListadoDeClientes() 
+        public List<Cliente> obtenerListadoDeClientes()
         {
             List<Cliente> lista = new List<Cliente>();
 
@@ -41,7 +45,6 @@ namespace POOIntro.dao
                 cliente.Telefono = lectura.GetString("telefono");
                 cliente.TarjetaDeCredito = lectura.GetString("tarjeta_de_credito");
                 lista.Add(cliente);
-
             }
             comando.Connection.Close();
             return lista;
@@ -52,7 +55,8 @@ namespace POOIntro.dao
             if (cliente.Id == null)
             {
                 Insert(cliente);
-            } else
+            }
+            else
             {
                 Update(cliente);
             }
@@ -62,7 +66,7 @@ namespace POOIntro.dao
         {
             string consulta = "INSERT INTO `clientes` (`id`, `nombre`, `apellido`, `telefono`, `tarjeta_de_credito`) VALUES (NULL, '"
                 + cliente.Nombre + "', '" + cliente.Apellido + "', '" + cliente.Telefono + "', '" + cliente.TarjetaDeCredito + "');";
-            
+
             MySqlCommand comando = new MySqlCommand(consulta);
             comando.Connection = Conectar();
             comando.ExecuteNonQuery();
@@ -72,18 +76,18 @@ namespace POOIntro.dao
 
         private void Update(Cliente cliente)
         {
-            string consulta = "UPDATE `clientes` SET `nombre` = '"+ cliente.Nombre + "', `apellido` = '"+ cliente.Apellido +"', `telefono` = '"+ cliente.Telefono +"', `tarjeta_de_credito` = '"+ cliente.TarjetaDeCredito +"' WHERE `clientes`.`id` = "+ cliente.Id +";";
-            
+            string consulta = "UPDATE `clientes` SET `nombre` = '" + cliente.Nombre + "', `apellido` = '" + cliente.Apellido + "', `telefono` = '" + cliente.Telefono + "', `tarjeta_de_credito` = '" + cliente.TarjetaDeCredito + "' WHERE `clientes`.`id` = " + cliente.Id + ";";
+
             MySqlCommand comando = new MySqlCommand(consulta);
             comando.Connection = Conectar();
             comando.ExecuteNonQuery();
-            
+
             comando.Connection.Close();
         }
 
         public void Eliminar(Cliente cliente)
         {
-            string consulta = "DELETE FROM clientes WHERE `clientes`.`id` = "+ cliente.Id +";";
+            string consulta = "DELETE FROM clientes WHERE `clientes`.`id` = " + cliente.Id + ";";
             MySqlCommand comando = new MySqlCommand(consulta);
             comando.Connection = Conectar();
             comando.ExecuteNonQuery();
